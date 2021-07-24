@@ -1,0 +1,18 @@
+{
+  "name": "github-language-stats",
+  "version": "1.0.0",
+  "description": "Detects percentage of languages used by any user",
+  "main": "index.js",
+  "author": "Navneet Lal Gupta <navneetlalg@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "node-fetch": "^2.6.1",
+    "rxjs": "^7.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.1",
+    "@vercel/node": "^1.11.1",
+    "typescript": "^4.3.5"
+  }
+}
