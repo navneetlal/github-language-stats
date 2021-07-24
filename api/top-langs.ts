@@ -15,26 +15,8 @@ export default (request: VercelRequest, response: VercelResponse) => {
             mergeMap((url: string) => fetch(url).then(res => res.json())),
             filter(lang => !(Object.keys(lang).length === 0 && lang.constructor === Object)),
             reduce((acc, curr) => acc.concat([curr]), [] as any[]),
-            map(x => {
+            map((langInRepos: Record<string, any>[]) => {
                 const languages: Record<string, any> = {}
-                const langInRepos = [
-                    { 'C#': 7823 },
-                    { HCL: 345 },
-                    { TypeScript: 6502, Shell: 217 },
-                    { HTML: 11870, JavaScript: 8338 },
-                    { JavaScript: 4441 },
-                    { 'C#': 4598 },
-                    { JavaScript: 6260, CSS: 1395, HTML: 499 },
-                    { 'C#': 3540 },
-                    { Dockerfile: 1132 },
-                    { 'C#': 11916 },
-                    { TypeScript: 5762, Dockerfile: 295 },
-                    { 'C#': 1347, Shell: 137 },
-                    { JavaScript: 2326 },
-                    { CSS: 48630, HTML: 12520, JavaScript: 2055, Ruby: 157 },
-                    { TypeScript: 7174, HTML: 1721, CSS: 930 },
-                    { Java: 631 }
-                ] as Record<string, any>[]
                 langInRepos.forEach(langInRepo => {
                     for (const lang in langInRepo) {
                         if (Object.prototype.hasOwnProperty.call(languages, lang)) languages[lang] = languages[lang] + langInRepo[lang]
