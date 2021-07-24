@@ -6,7 +6,7 @@ import colors from '../colors.json';
 
 export default (request: VercelRequest, response: VercelResponse) => {
     const { username = 'navneetlal' } = request.query;
-    of(`https://api.github.com/users/navneetlal/repos`)
+    of(`https://api.github.com/users/${username}/repos`)
         .pipe(
             concatMap(url => fetch(url).then(res => res.json())),
             concatMap(list => list),
@@ -149,7 +149,11 @@ export default (request: VercelRequest, response: VercelResponse) => {
 
             }),
         ).subscribe({
-            next: (result) => response.status(200).send(result),
+            next: (result) => {
+                response.setHeader('Content-Type', 'image/svg+xml')
+                response.setHeader('Cache-Control', 's-maxage=3600')
+                response.status(200).send(result)
+            },
             error: (err) => response.status(500).send(err)
         })
 };
