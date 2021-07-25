@@ -7,14 +7,14 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import colors from '../colors.json';
 
 export default (request: VercelRequest, response: VercelResponse) => {
-    const { username = 'navneetlal' } = request.query;
+    const { username = 'navneetlal', count = 6, fork = 'false' } = request.query;
     of(`https://api.github.com/users/${username}/repos`)
         .pipe(
             concatMap(url => fetch(url, {
                 headers: { authorization: `token ${process.env.PERSONAL_ACCESS_TOKEN}` }
             }).then(res => res.json())),
             concatMap(list => list),
-            filter((repo: any) => !repo.fork),
+            filter((repo: any) => repo.fork === JSON.parse(fork as string)),
             pluck('languages_url'),
             mergeMap((url: string) => fetch(url, {
                 headers: { authorization: `token ${process.env.PERSONAL_ACCESS_TOKEN}` }
@@ -41,9 +41,9 @@ export default (request: VercelRequest, response: VercelResponse) => {
                     })
                 }
                 l.sort(function (a, b) {
-                    return parseInt(b.size) - parseInt(a.size);
+                    return parseFloat(b.size) - parseFloat(a.size);
                 });
-                return l.slice(0, 6);
+                return l.slice(0, parseInt(count as string) || 6);
             }),
             map(a => {
                 let x = 0;
@@ -71,7 +71,8 @@ export default (request: VercelRequest, response: VercelResponse) => {
                     </g>`
 
                 })
-                return `<svg width="350" height="165" viewBox="0 0 350 165" fill="none"
+                const svgWidth = 165 + (((parseInt(count as string) || 6) - 6) * 12.5);
+                return `<svg width="350" height="${svgWidth}" viewBox="0 0 350 ${svgWidth}" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
                 <style>
                     .header {
