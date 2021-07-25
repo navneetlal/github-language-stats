@@ -1,1 +1,1 @@
-![alt](https://github-language-stats.vercel.app/api/top-langs)
+![alt](https://github-language-stats.vercel.app/api/top-langs?username=navneetlal)

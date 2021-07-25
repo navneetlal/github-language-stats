@@ -1,18 +1,24 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import fetch from 'node-fetch';
 import { of } from 'rxjs';
-import { concatMap, mergeMap, tap, filter, pluck, reduce, map } from 'rxjs/operators';
+import { concatMap, mergeMap, filter, pluck, reduce, map } from 'rxjs/operators';
+
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
 import colors from '../colors.json';
 
 export default (request: VercelRequest, response: VercelResponse) => {
     const { username = 'navneetlal' } = request.query;
     of(`https://api.github.com/users/${username}/repos`)
         .pipe(
-            concatMap(url => fetch(url).then(res => res.json())),
+            concatMap(url => fetch(url, {
+                headers: { authorization: `token ${process.env.PERSONAL_ACCESS_TOKEN}` }
+            }).then(res => res.json())),
             concatMap(list => list),
             filter((repo: any) => !repo.fork),
             pluck('languages_url'),
-            mergeMap((url: string) => fetch(url).then(res => res.json())),
+            mergeMap((url: string) => fetch(url, {
+                headers: { authorization: `token ${process.env.PERSONAL_ACCESS_TOKEN}` }
+            }).then(res => res.json())),
             filter(lang => !(Object.keys(lang).length === 0 && lang.constructor === Object)),
             reduce((acc, curr) => acc.concat([curr]), [] as any[]),
             map((langInRepos: Record<string, any>[]) => {
@@ -76,31 +82,27 @@ export default (request: VercelRequest, response: VercelResponse) => {
                     .lang-name { font: 400 11px 'Segoe UI', Ubuntu, Sans-Serif; fill: #333 }
             
                     
-                /* Animations */
-                @keyframes scaleInAnimation {
-                from {
-                    transform: translate(-5px, 5px) scale(0);
-                }
-                to {
-                    transform: translate(-5px, 5px) scale(1);
-                }
-                }
-                @keyframes fadeInAnimation {
-                from {
-                    opacity: 0;
-                }
-                to {
-                    opacity: 1;
-                }
-                }
-            
+                    /* Animations */
+                    @keyframes scaleInAnimation {
+                        from {
+                            transform: translate(-5px, 5px) scale(0);
+                        }
+                        to {
+                            transform: translate(-5px, 5px) scale(1);
+                        }
+                    }
+                    @keyframes fadeInAnimation {
+                        from {
+                            opacity: 0;
+                        }
+                        to {
+                            opacity: 1;
+                        }
+                    }
                     * { animation-duration: 0s !important; animation-delay: 0s !important; }
                 </style>
             
-            
-            
                 <rect data-testid="card-bg" x="0.5" y="0.5" rx="4.5" height="99%" stroke="#e4e2e2" width="349" fill="#fffefe" stroke-opacity="1" />
-            
             
                 <g data-testid="card-title" transform="translate(25, 35)">
                     <g transform="translate(0, 0)">
@@ -108,32 +110,24 @@ export default (request: VercelRequest, response: VercelResponse) => {
                     </g>
                 </g>
             
-            
                 <g data-testid="main-card-body" transform="translate(0, 55)">
-            
                     <svg data-testid="lang-items" x="25">
-            
                         <mask id="rect-mask">
                             <rect x="0" y="0" width="300" height="8" fill="white" rx="5" />
                         </mask>
-            
                         ${rect.join(' ')}
-            
-            
                         ${g.join(' ')}
-            
-            
-                    </svg>
-            
+                    </svg>      
                 </g>
             </svg>
             `
-
             }),
         ).subscribe({
             next: (result) => {
+                const cacheInSeconds = 60 * 60 * 24 // 1 Day
                 response.setHeader('Content-Type', 'image/svg+xml')
-                response.setHeader('Cache-Control', 's-maxage=3600')
+                response.setHeader('Cache-Control', `s-maxage=${cacheInSeconds}`)
+                response.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
                 response.status(200).send(result)
             },
             error: (err) => response.status(500).send(err)
