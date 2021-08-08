@@ -43,7 +43,7 @@ export default (request: VercelRequest, response: VercelResponse) => {
                 l.sort(function (a, b) {
                     return parseFloat(b.size) - parseFloat(a.size);
                 });
-                return l.slice(0, parseInt(count as string) || 6);
+                return l;
             }),
             map(a => {
                 let x = 0;
@@ -57,7 +57,7 @@ export default (request: VercelRequest, response: VercelResponse) => {
 
                 let translateX = 0
                 let translateY = 0
-                const g = a.map((b: any, i: number) => {
+                const g = a.slice(0, parseInt(count as string) || 6).map((b: any, i: number) => {
                     if (i % 2 === 0) {
                         translateX = 0;
                         translateY = translateY + 25
